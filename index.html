@@ -494,6 +494,7 @@
                             <div><label
                                     style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Kelas</label>
                                 <select id="raporKelas" onchange="onRaporKelasChange()"
+                                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); }"
                                     style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px;">
                                     <option value="">Pilih Kelas</option>
                                 </select>
@@ -501,7 +502,7 @@
                             <div><label
                                     style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Nama
                                     Siswa</label>
-                                <select id="raporNama"
+                                <select id="raporNama" onkeydown="if(event.key === 'Enter') { event.preventDefault(); }"
                                     style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px;">
                                     <option value="">Pilih Siswa</option>
                                 </select>
@@ -524,6 +525,7 @@
                             <div><label
                                     style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Kelas</label>
                                 <select id="raporFilterKelas" onchange="updateRaporFilterNama()"
+                                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); }"
                                     style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px;">
                                     <option value="">Semua Kelas</option>
                                 </select>
@@ -532,6 +534,7 @@
                                     style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Nama
                                     Siswa</label>
                                 <select id="raporFilterNama"
+                                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); }"
                                     style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px;">
                                     <option value="">Semua Siswa</option>
                                 </select>
@@ -539,6 +542,7 @@
                             <div><label
                                     style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Semester</label>
                                 <select id="raporFilterSemester"
+                                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); }"
                                     style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px;">
                                     <option value="">Pilih Semester</option>
                                     <option value="Ganjil">Ganjil</option>
@@ -549,18 +553,21 @@
                                     style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Tahun
                                     Ajaran</label>
                                 <input type="text" id="raporFilterTA" placeholder="2025/2026"
+                                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); }"
                                     style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px;">
                             </div>
                             <div><label
                                     style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Tanggal
                                     Cetak</label>
                                 <input type="date" id="raporFilterTanggal"
+                                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); }"
                                     style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px;">
                             </div>
                             <div><label
                                     style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Kepala
                                     Sekolah/Madrasah</label>
                                 <select id="raporFilterKepsek"
+                                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); }"
                                     style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px;">
                                     <option value="">Pilih</option>
                                     <option value="Heri Bagus Ardiansyah, M.Pd.|Kepala Sekolah">Heri Bagus Ardiansyah,
@@ -1152,7 +1159,7 @@
                             guruBK: values[3]?.replace(/"/g, '').trim() || ''
                         };
 
-                        if (siswa.nis && siswa.nama && siswa.kelas && siswa.guruBK) {
+                        if (siswa.nama) {
                             siswaData.push(siswa);
                         }
                     }
@@ -2278,12 +2285,12 @@
                         <!-- Signature Section -->
                         <div class="signature-section">
                             <div class="signature-box">
-                                <p style="font-size: 12px; color: #333; margin-bottom: 60px;">${selectedPrincipal.includes('Heri Bagus Ardiansyah') ? 'Kepala Sekolah,' : 'Kepala Madrasah,'}</p>
+                                <p style="font-size: 12px; color: #333; margin-bottom: 100px;">${selectedPrincipal.includes('Heri Bagus Ardiansyah') ? 'Kepala Sekolah,' : 'Kepala Madrasah,'}</p>
                                 <strong style="font-size: 11px; color: #333;">_____________________</strong>
                                 <p style="font-size: 11px; color: #333; margin-top: 12px; font-weight: 600;">${selectedPrincipal}</p>
                             </div>
                             <div class="signature-box">
-                                <p style="font-size: 12px; color: #333; margin-bottom: 60px;">Guru Bimbingan & Konseling</p>
+                                <p style="font-size: 12px; color: #333; margin-bottom: 100px;">Guru Bimbingan & Konseling</p>
                                 <strong style="font-size: 11px; color: #333;">_____________________</strong>
                                 <p style="font-size: 11px; color: #333; margin-top: 12px; font-weight: 600;">${currentUser ? currentUser.nama : 'Nama Guru BK'}</p>
                             </div>
@@ -2568,18 +2575,42 @@
             const kelas = document.getElementById('raporKelas').value;
             const sel = document.getElementById('raporNama');
             if (!kelas) { sel.innerHTML = '<option value="">Pilih Siswa</option>'; renderRaporForm(); return; }
-            const list = siswaData.filter(s => s.kelas === kelas).sort((a, b) => a.nama.localeCompare(b.nama));
+
+            const list = siswaData.filter(s => {
+                const matchKelas = s.kelas === kelas;
+                if (currentUser && currentUser.peran === 'Guru BK') {
+                    const guruBKNormalized = (s.guruBK || '').trim().toLowerCase();
+                    const currentUserNormalized = (currentUser.nama || '').trim().toLowerCase();
+                    return matchKelas && guruBKNormalized === currentUserNormalized;
+                }
+                return matchKelas;
+            }).sort((a, b) => a.nama.localeCompare(b.nama));
+
             sel.innerHTML = '<option value="">Pilih Siswa</option>' + list.map(s => `<option value="${s.nama}">${s.nama}</option>`).join('');
             renderRaporForm();
         }
 
         function populateRaporKelasOptions() {
-            const kelasSet = new Set(siswaData.map(s => s.kelas).filter(k => k));
+            const filteredSiswa = siswaData.filter(s => {
+                if (currentUser && currentUser.peran === 'Guru BK') {
+                    const guruBKNormalized = (s.guruBK || '').trim().toLowerCase();
+                    const currentUserNormalized = (currentUser.nama || '').trim().toLowerCase();
+                    return guruBKNormalized === currentUserNormalized;
+                }
+                return true;
+            });
+            const kelasSet = new Set(filteredSiswa.map(s => s.kelas).filter(k => k));
             const kelasList = Array.from(kelasSet).sort();
             const sel = document.getElementById('raporKelas');
             if (sel) sel.innerHTML = '<option value="">Pilih Kelas</option>' + kelasList.map(k => `<option value="${k}">${k}</option>`).join('');
+
+            // Filter bagian tetap menampilkan semua kelas untuk filter rekap jika perlu, 
+            // atau ikut disaring jika user ingin. User hanya minta "form pengisian rapor".
+            // Namun agar konsisten, kita saring juga yang di bagian Filter & Cetak.
+            const allKelasSet = new Set(siswaData.map(s => s.kelas).filter(k => k));
+            const allKelasList = Array.from(allKelasSet).sort();
             const fsel = document.getElementById('raporFilterKelas');
-            if (fsel) fsel.innerHTML = '<option value="">Semua Kelas</option>' + kelasList.map(k => `<option value="${k}">${k}</option>`).join('');
+            if (fsel) fsel.innerHTML = '<option value="">Semua Kelas</option>' + allKelasList.map(k => `<option value="${k}">${k}</option>`).join('');
         }
 
         function renderRaporForm() {
@@ -2592,6 +2623,7 @@
             const aspekLabel = { pribadi: '1. Pribadi', sosial: '2. Sosial', belajar: '3. Belajar', karier: '4. Karier' };
             const kategoris = ['Mulai Berkembang', 'Sedang Berkembang', 'Berkembang Sesuai Harapan', 'Sangat Berkembang'];
             const selStyle = 'width:100%;padding:10px 14px;border:2px solid #e5e7eb;border-radius:10px;font-size:13px;';
+            const enterBlock = `onkeydown="if(event.key === 'Enter') { event.preventDefault(); }"`;
             const descStyle = 'width:100%;padding:10px 14px;border:2px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f9fafb;min-height:80px;resize:vertical;';
             let html = '';
             if (raporMode === 'basic') {
@@ -2600,12 +2632,12 @@
                         <h4 style="font-size:15px;font-weight:700;color:#374151;margin-bottom:12px;">${aspekLabel[aspek]}</h4>
                         <div style="display:grid;grid-template-columns:1fr 2fr;gap:15px;">
                             <div><label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Kategori</label>
-                                <select id="rapor_${aspek}_kat" onchange="updateRaporDeskripsi('${aspek}')" style="${selStyle}">
+                                <select id="rapor_${aspek}_kat" onchange="updateRaporDeskripsi('${aspek}')" style="${selStyle}" ${enterBlock}>
                                     <option value="">Pilih Kategori</option>
                                     ${kategoris.map(k => `<option value="${k}">${k}</option>`).join('')}
                                 </select></div>
                             <div><label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Deskripsi</label>
-                                <textarea id="rapor_${aspek}_desk" style="${descStyle}" readonly></textarea></div>
+                                <textarea id="rapor_${aspek}_desk" style="${descStyle}" readonly ${enterBlock}></textarea></div>
                         </div></div>`;
                 });
             } else {
@@ -2615,21 +2647,21 @@
                         <h4 style="font-size:15px;font-weight:700;color:#374151;margin-bottom:12px;">${aspekLabel[aspek]}</h4>
                         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px;">
                             ${subs.map((sub, i) => `<div><label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">${sub}</label>
-                                <select id="rapor_${aspek}_s${i}" onchange="updateProKategori('${aspek}')" style="${selStyle}">
+                                <select id="rapor_${aspek}_s${i}" onchange="updateProKategori('${aspek}')" style="${selStyle}" ${enterBlock}>
                                     <option value="">-</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
                                 </select></div>`).join('')}
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 2fr;gap:15px;">
                             <div><label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Kategori</label>
-                                <input type="text" id="rapor_${aspek}_kat" style="${selStyle}background:#f9fafb;" readonly></div>
+                                <input type="text" id="rapor_${aspek}_kat" style="${selStyle}background:#f9fafb;" readonly ${enterBlock}></div>
                             <div><label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">Deskripsi</label>
-                                <textarea id="rapor_${aspek}_desk" style="${descStyle}" readonly></textarea></div>
+                                <textarea id="rapor_${aspek}_desk" style="${descStyle}" readonly ${enterBlock}></textarea></div>
                         </div></div>`;
                 });
             }
             html += `<div style="background:linear-gradient(135deg,#f0fdf4 0%,#f5f3ff 100%);border-radius:16px;padding:20px;margin-bottom:15px;">
                 <h4 style="font-size:15px;font-weight:700;color:#374151;margin-bottom:12px;">5. Catatan Bimbingan dan Konseling</h4>
-                <textarea id="rapor_catatan" style="${descStyle}background:white;" placeholder="Masukkan catatan..."></textarea></div>`;
+                <textarea id="rapor_catatan" style="${descStyle}background:white;" placeholder="Masukkan catatan..." ${enterBlock}></textarea></div>`;
             container.innerHTML = html;
         }
 
@@ -2729,6 +2761,7 @@
                         });
                     }
                 }
+                await loadSiswaData(); // Pastikan data siswa (NIS) terbaru terambil
                 populateRaporKelasOptions();
                 renderRaporCards(raporData);
             } catch (e) {
@@ -2788,8 +2821,8 @@
             const katColors = { 'Mulai Berkembang': '#ef4444', 'Sedang Berkembang': '#f59e0b', 'Berkembang Sesuai Harapan': '#10b981', 'Sangat Berkembang': '#8b5cf6' };
             container.innerHTML = unique.map((r, i) => {
                 const g = grads[i % grads.length];
-                const siswa = siswaData.find(s => s.nama.toLowerCase() === r.nama.toLowerCase());
-                const nis = siswa ? siswa.nis : '-';
+                const siswa = siswaData.find(s => s.nama.trim().toLowerCase() === r.nama.trim().toLowerCase());
+                const nis = (siswa && siswa.nis) ? siswa.nis : '-';
                 const encodedIdx = btoa(unescape(encodeURIComponent(JSON.stringify(r))));
                 return `<div style="background:white;border-radius:16px;box-shadow:0 4px 20px rgba(139,92,246,0.15);overflow:hidden;transition:all 0.3s;"
                     onmouseover="this.style.transform='translateY(-5px)';this.style.boxShadow='0 10px 30px rgba(139,92,246,0.25)'"
@@ -2843,8 +2876,8 @@
             const printDate = getRaporPrintDate();
             let allPages = '';
             records.forEach((r, idx) => {
-                const siswa = siswaData.find(s => s.nama.toLowerCase() === r.nama.toLowerCase());
-                const nis = siswa ? siswa.nis : '-';
+                const siswa = siswaData.find(s => s.nama.trim().toLowerCase() === r.nama.trim().toLowerCase());
+                const nis = (siswa && siswa.nis) ? siswa.nis : '-';
                 const pageBreak = idx > 0 ? 'page-break-before:always;' : '';
                 allPages += `
                 <div class="rapor-page" style="${pageBreak}">
@@ -2886,8 +2919,8 @@
                         <tbody><tr><td style="min-height:40px;">${r.catatan || '-'}</td></tr></tbody>
                     </table>
                     <table class="ttd-table"><tr>
-                        <td style="text-align:center;">Mengetahui,<br>${kepsekJabatan}<br><br><br><br><b><u>${kepsekNama}</u></b></td>
-                        <td style="text-align:center;">Malang, ${printDate}<br>Guru Bimbingan Konseling<br><br><br><br><b><u>${currentUser ? currentUser.nama : '_______________'}</u></b></td>
+                        <td style="text-align:center;">Mengetahui,<br>${kepsekJabatan}<div style="height: 2.5cm;"></div><b><u>${kepsekNama}</u></b></td>
+                        <td style="text-align:center;">Malang, ${printDate}<br>Guru Bimbingan Konseling<div style="height: 2.5cm;"></div><b><u>${currentUser ? currentUser.nama : '_______________'}</u></b></td>
                     </tr></table>
                 </div>`;
             });
