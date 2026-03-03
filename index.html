@@ -402,11 +402,12 @@
                                     style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px;">
                             </div>
                             <div><label
-                                    style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Kelas</label>
-                                <select id="filterKelas" onchange="updateFilterSiswa()"
-                                    style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px;">
-                                    <option value="">Semua Kelas</option>
-                                </select>
+                                    style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Kelas
+                                    (Bisa pilih beberapa)</label>
+                                <div id="filterKelasContainer"
+                                    style="width: 100%; height: 120px; overflow-y: auto; padding: 10px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; background: white;">
+                                    <!-- Checkboxes will be populated here -->
+                                </div>
                             </div>
                             <div><label
                                     style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Nama
@@ -424,6 +425,15 @@
                                         Sekolah)</option>
                                     <option value="Abd. Wahid, S.Pd., M.Si.">Abd. Wahid, S.Pd., M.Si. (Kepala Madrasah)
                                     </option>
+                                </select>
+                            </div>
+                            <div><label
+                                    style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Orientasi
+                                    Cetak</label>
+                                <select id="printOrientation"
+                                    style="width: 100%; padding: 12px 16px; background: white; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                                    <option value="portrait">Portrait (Tegak)</option>
+                                    <option value="landscape">Landscape (Mendatar)</option>
                                 </select>
                             </div>
                         </div>
@@ -1907,6 +1917,7 @@
 
         function printLaporan() {
             const selectedPrincipal = document.getElementById('prinicipalSelect').value;
+            const orientation = document.getElementById('printOrientation').value || 'portrait';
 
             if (!selectedPrincipal) {
                 showToast('⚠️ Pilih Kepala Sekolah/Madrasah terlebih dahulu', 'error');
@@ -1916,333 +1927,336 @@
             // Get current filter values
             const tanggalMulai = document.getElementById('filterTanggalMulai').value;
             const tanggalSelesai = document.getElementById('filterTanggalSelesai').value;
-            const kelas = document.getElementById('filterKelas').value;
-            const namaSiswa = document.getElementById('filterNamaSiswa').value;
+            const selectedClasses = Array.from(document.querySelectorAll('input[name="filterKelas"]:checked')).map(cb => cb.value);
+            const namaSiswaFilter = document.getElementById('filterNamaSiswa').value;
+
             // Apply filters to get current data
             let filtered = laporanData;
 
             if (tanggalMulai) {
                 const mulaiObj = new Date(tanggalMulai);
                 mulaiObj.setHours(0, 0, 0, 0);
-
-                filtered = filtered.filter(l => {
-                    if (!l.tanggalObj) return false;
-                    const tanggalObj = new Date(l.tanggalObj);
-                    tanggalObj.setHours(0, 0, 0, 0);
-                    return tanggalObj >= mulaiObj;
-                });
+                filtered = filtered.filter(l => l.tanggalObj && l.tanggalObj >= mulaiObj);
             }
 
             if (tanggalSelesai) {
                 const selesaiObj = new Date(tanggalSelesai);
                 selesaiObj.setHours(23, 59, 59, 999);
-
-                filtered = filtered.filter(l => {
-                    if (!l.tanggalObj) return false;
-                    const tanggalObj = new Date(l.tanggalObj);
-                    tanggalObj.setHours(0, 0, 0, 0);
-                    return tanggalObj <= selesaiObj;
-                });
+                filtered = filtered.filter(l => l.tanggalObj && l.tanggalObj <= selesaiObj);
             }
 
-            if (kelas) {
+            if (selectedClasses.length > 0) {
                 filtered = filtered.filter(l => {
                     const kelasList = l.kelas.split(',').map(k => k.trim());
-                    return kelasList.includes(kelas);
+                    return kelasList.some(k => selectedClasses.includes(k));
                 });
             }
 
-            if (namaSiswa) {
+            if (namaSiswaFilter) {
                 filtered = filtered.filter(l => {
-                    const namaList = l.namaSiswa.split(',').map(n => {
-                        return n.trim().replace(/\s*\([^)]*\)/g, '').trim();
-                    });
-                    return namaList.some(nama => nama.toLowerCase() === namaSiswa.toLowerCase());
+                    const namaList = l.namaSiswa.split(',').map(n => n.trim().replace(/\s*\([^)]*\)/g, '').trim().toLowerCase());
+                    return namaList.some(nama => nama === namaSiswaFilter.toLowerCase());
                 });
             }
 
             // Calculate statistics
             const stats = calculateLaporanStats(filtered);
 
+            // Group by class for nested statistics
+            const classStats = {};
+            filtered.forEach(item => {
+                const kList = item.kelas.split(',').map(k => k.trim()).filter(k => k);
+                kList.forEach(k => {
+                    if (!classStats[k]) {
+                        classStats[k] = {
+                            'Konseling Individu': 0,
+                            'Konseling Kelompok': 0,
+                            'Bimbingan Kelompok': 0,
+                            'Bimbingan Kelas': 0,
+                            total: 0
+                        };
+                    }
+                    const jenis = item.jenisLayanan.trim();
+                    if (classStats[k][jenis] !== undefined) {
+                        classStats[k][jenis]++;
+                    }
+                    classStats[k].total++;
+                });
+            });
+
+            const sortedClasses = Object.keys(classStats).sort();
+
             // Format tanggal cetak
             const today = new Date();
             const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            const printDate = `${today.getDate()} ${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+            const printDateStr = `${today.getDate()} ${monthNames[today.getMonth()]} ${today.getFullYear()}`;
 
-            // Landscape layout settings
-            const containerStyle = 'max-width: 297mm; min-height: 210mm;';
-            const tableStyle = 'font-size: 10px;';
-            const thStyle = 'padding: 10px 6px;';
-            const tdStyle = 'padding: 8px 6px;';
+            // Header configuration based on principal
+            let logoUrl = 'https://iili.io/qqdpAes.png'; // Default SMP
+            let institution = 'SMP ISLAM AL-UMM';
+            let roleHeader = 'Kepala Sekolah,';
 
-            // Generate print content
+            if (selectedPrincipal.includes('Abd. Wahid')) {
+                logoUrl = 'https://iili.io/qqdbDPI.png';
+                institution = 'MA AL-UMM MALANG';
+                roleHeader = 'Kepala Madrasah,';
+            }
+
+            // Styles for print
+            const containerWidth = orientation === 'landscape' ? '277mm' : '190mm';
+
             const printContent = `
                 <!DOCTYPE html>
                 <html lang="id">
                 <head>
                     <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Laporan Layanan BK</title>
                     <style>
-                        * {
+                        @page {
+                            size: A4 ${orientation};
+                            margin: 10mm;
+                        }
+                        body {
+                            font-family: 'Segoe UI', Arial, sans-serif;
+                            line-height: 1.4;
+                            color: #333;
                             margin: 0;
                             padding: 0;
-                            box-sizing: border-box;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
                         }
-                        
-                        body {
-                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                            line-height: 1.6;
-                            color: #333;
-                            padding: 0;
-                        }
-                        
-                        @page {
-                            size: A4 landscape;
-                            margin: 15mm 15mm 15mm 15mm;
-                        }
-                        
-                        @media print {
-                            body {
-                                padding: 0;
-                                margin: 0;
-                                width: 297mm;
-                                height: 210mm;
-                            }
-                        }
-                        
-                        .print-container {
-                            ${containerStyle}
+                        .container {
+                            width: 100%;
+                            max-width: ${containerWidth};
                             margin: 0 auto;
-                            background: white;
-                            padding: 20px;
                         }
-                        
-                        .header {
+                        /* Header Styles */
+                        .header-kop {
                             display: flex;
                             align-items: center;
-                            gap: 20px;
-                            border-bottom: 3px solid #10b981;
-                            padding-bottom: 20px;
-                            margin-bottom: 30px;
+                            justify-content: center;
+                            gap: 30px;
+                            margin-bottom: 25px;
+                            padding: 30px;
+                            background: linear-gradient(135deg, #059669 0%, #1e40af 100%);
+                            border-radius: 20px;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                            color: white;
+                        }
+                        .header-kop img {
+                            width: 100px;
+                            height: 100px;
+                            object-fit: contain;
+                            background: white;
+                            padding: 12px;
+                            border-radius: 15px;
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                        }
+                        .header-text {
+                            text-align: center;
+                            flex: 1;
+                        }
+                        .header-text h1 {
+                            font-size: 22px;
+                            margin: 0;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                            font-weight: 600;
+                            color: rgba(255,255,255,0.9);
+                        }
+                        .header-text h2 {
+                            font-size: 32px;
+                            margin: 8px 0;
+                            font-weight: 800;
+                            text-transform: uppercase;
+                            color: white;
+                            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        }
+                        .header-text p {
+                            font-size: 14px;
+                            margin: 0;
+                            font-style: italic;
+                            color: rgba(255,255,255,0.8);
+                        }
+                        .double-line {
+                            display: none; /* Removed in favor of gradient box */
                         }
                         
-                        .logo-placeholder {
-                            width: 70px;
-                            height: 70px;
-                            background: linear-gradient(135deg, #10b981 0%, #8b5cf6 100%);
-                            border-radius: 12px;
+                        /* Stats Bar Chart */
+                        .class-stats-section {
+                            margin-bottom: 25px;
+                            background: #f8fafc;
+                            padding: 20px;
+                            border-radius: 15px;
+                            border: 1px solid #e2e8f0;
+                        }
+                        .class-row {
+                            margin-bottom: 12px;
+                        }
+                        .class-info {
+                            display: flex;
+                            justify-content: space-between;
+                            font-size: 12px;
+                            font-weight: 700;
+                            margin-bottom: 4px;
+                            color: #1a365d;
+                        }
+                        .stacked-bar-container {
+                            display: flex;
+                            height: 18px;
+                            background: #cbd5e1;
+                            border-radius: 9px;
+                            overflow: hidden;
+                            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+                        }
+                        .bar-segment {
+                            height: 100%;
                             display: flex;
                             align-items: center;
                             justify-content: center;
                             color: white;
-                            font-size: 40px;
-                            font-weight: 700;
-                            flex-shrink: 0;
+                            font-size: 11px;
+                            font-weight: bold;
+                            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
                         }
                         
-                        .header-info h1 {
-                            font-size: 20px;
-                            font-weight: 700;
-                            color: #1f2937;
+                        /* Legend */
+                        .legend {
+                            display: flex;
+                            gap: 15px;
+                            justify-content: center;
+                            margin-bottom: 20px;
+                            flex-wrap: wrap;
+                        }
+                        .legend-item {
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                            font-size: 11px;
+                            font-weight: 600;
+                            color: #475569;
+                        }
+                        .dot {
+                            width: 12px;
+                            height: 12px;
+                            border-radius: 3px;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                        }
+
+                        /* Table Styles */
+                        table {
+                            width: 100%;
+                            border-collapse: separate;
+                            border-spacing: 0;
+                            font-size: 11px;
                             margin-bottom: 5px;
+                            border: 1px solid #cbd5e1;
+                            border-radius: 10px;
+                            overflow: hidden;
                         }
-                        
-                        .header-info p {
-                            font-size: 13px;
-                            color: #6b7280;
-                            margin: 2px 0;
+                        th {
+                            background: #f1f5f9;
+                            border-bottom: 2px solid #cbd5e1;
+                            border-right: 1px solid #cbd5e1;
+                            padding: 10px 8px;
+                            text-align: center;
+                            color: #1e293b;
+                            font-weight: 700;
                         }
+                        td {
+                            border-bottom: 1px solid #e2e8f0;
+                            border-right: 1px solid #e2e8f0;
+                            padding: 8px;
+                            vertical-align: top;
+                            color: #334155;
+                        }
+                        tr:last-child td {
+                            border-bottom: none;
+                        }
+                        th:last-child, td:last-child {
+                            border-right: none;
+                        }
+                        .center { text-align: center; }
                         
                         .print-date {
                             text-align: right;
-                            font-size: 12px;
-                            color: #6b7280;
-                            margin-bottom: 20px;
-                        }
-                        
-                        .statistics {
-                            display: grid;
-                            grid-template-columns: repeat(4, 1fr);
-                            gap: 15px;
-                            margin-bottom: 30px;
-                        }
-                        
-                        .stat-card {
-                            background: linear-gradient(135deg, #f0fdf4 0%, #f5f3ff 100%);
-                            border-left: 4px solid #10b981;
-                            padding: 15px;
-                            border-radius: 8px;
-                            page-break-inside: avoid;
-                        }
-                        
-                        .stat-card.konseling-ind {
-                            border-left-color: #10b981;
-                        }
-                        
-                        .stat-card.konseling-kel {
-                            border-left-color: #8b5cf6;
-                        }
-                        
-                        .stat-card.bimbingan-kel {
-                            border-left-color: #f59e0b;
-                        }
-                        
-                        .stat-card.bimbingan-kelas {
-                            border-left-color: #ec4899;
-                        }
-                        
-                        .stat-card .number {
-                            font-size: 28px;
-                            font-weight: 700;
-                            color: #1f2937;
-                        }
-                        
-                        .stat-card .label {
-                            font-size: 12px;
-                            color: #6b7280;
+                            font-size: 14px;
                             font-weight: 600;
-                            margin-top: 5px;
+                            margin-bottom: 15px;
+                            color: #64748b;
                         }
-                        
-                        .filter-info {
-                            background: #f3f4f6;
-                            padding: 12px 15px;
-                            border-radius: 8px;
+
+                        .footnote {
+                            font-size: 10px;
+                            font-style: italic;
+                            color: #64748b;
                             margin-bottom: 20px;
-                            font-size: 12px;
-                            color: #6b7280;
+                            padding-left: 10px;
                         }
-                        
-                        .table-wrapper {
-                            margin-bottom: 30px;
+
+                        /* Signature Section */
+                        .signature-wrapper {
+                            margin-top: 30px;
+                            display: flex;
+                            justify-content: space-between;
                             page-break-inside: avoid;
                         }
-                        
-                        .table-title {
-                            font-size: 16px;
-                            font-weight: 700;
-                            color: #1f2937;
-                            margin-bottom: 12px;
-                            border-bottom: 2px solid #10b981;
-                            padding-bottom: 10px;
-                        }
-                        
-                        table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            ${tableStyle}
-                        }
-                        
-                        thead tr {
-                            background: linear-gradient(135deg, #f0fdf4 0%, #f5f3ff 100%);
-                            border-bottom: 2px solid #e5e7eb;
-                        }
-                        
-                        th {
-                            ${thStyle}
-                            text-align: left;
-                            font-weight: 700;
-                            color: #374151;
-                        }
-                        
-                        td {
-                            ${tdStyle}
-                            border-bottom: 1px solid #e5e7eb;
-                        }
-                        
-                        tbody tr {
-                            page-break-inside: avoid;
-                        }
-                        
-                        tbody tr:nth-child(even) {
-                            background: #f9fafb;
-                        }
-                        
-                        .footer {
-                            margin-top: 40px;
-                            padding-top: 20px;
-                            border-top: 2px solid #e5e7eb;
+                        .sig-box {
                             text-align: center;
-                            font-size: 11px;
-                            color: #6b7280;
-                        }
-                        
-                        .signature-section {
-                            display: grid;
-                            grid-template-columns: repeat(2, 1fr);
-                            gap: 60px;
-                            margin-top: 50px;
-                            page-break-inside: avoid;
-                        }
-                        
-                        .signature-box {
-                            text-align: center;
-                        }
-                        
-                        .signature-box p {
-                            font-size: 11px;
-                            color: #6b7280;
-                            margin-bottom: 60px;
-                        }
-                        
-                        .signature-box strong {
-                            font-size: 11px;
-                            color: #1f2937;
-                        }
-                        
-                        .no-data {
-                            text-align: center;
-                            padding: 30px;
-                            color: #6b7280;
-                            font-size: 13px;
+                            width: 250px;
                         }
                     </style>
                 </head>
                 <body>
-                    <div class="print-container">
-                        <!-- Header -->
-                        <div class="header">
-                            <img src="https://iili.io/fENwpbp.md.png" alt="Logo Pondok Pesantren" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
-                            <div class="header-info">
-                                <h1>Laporan Layanan Bimbingan Konseling</h1>
-                                <p><strong>Pondok Pesantren Al-Umm Malang</strong></p>
-                                <p>Jl. Joyo Agung No.1 Merjosari, Lowokwaru, Kota Malang</p>
+                    <div class="container">
+                        <!-- HEADER / KOP -->
+                        <div class="header-kop">
+                            <img src="${logoUrl}" alt="Logo">
+                            <div class="header-text">
+                                <h1>Laporan Layanan Bimbingan & Konseling</h1>
+                                <h2>${institution}</h2>
+                                <p>Jl. Joyo Agung No.1 merjosari, Lowokwaru, Kota Malang</p>
                             </div>
                         </div>
+
+                        <div class="print-date">Dicetak pada: ${printDateStr}</div>
                         
-                        <div class="print-date">Dicetak pada: ${printDate}</div>
-                        
-                        <!-- Statistics -->
-                        <div class="statistics">
-                            <div class="stat-card konseling-ind">
-                                <div class="number">${stats.konselingIndividu}</div>
-                                <div class="label">Konseling Individu</div>
+                        <!-- NEW SECTION: STATISTICS PER CLASS -->
+                        <div class="class-stats-section">
+                            <h3 style="font-size: 14px; text-align: center; margin-bottom: 15px;">Statistik Layanan Per Kelas</h3>
+                            <div class="legend">
+                                <div class="legend-item"><div class="dot" style="background:#10b981"></div> Individu</div>
+                                <div class="legend-item"><div class="dot" style="background:#8b5cf6"></div> K. Kelompok</div>
+                                <div class="legend-item"><div class="dot" style="background:#f59e0b"></div> B. Kelompok</div>
+                                <div class="legend-item"><div class="dot" style="background:#ec4899"></div> B. Kelas</div>
                             </div>
-                            <div class="stat-card konseling-kel">
-                                <div class="number">${stats.konselingKelompok}</div>
-                                <div class="label">Konseling Kelompok</div>
-                            </div>
-                            <div class="stat-card bimbingan-kel">
-                                <div class="number">${stats.bimbinganKelompok}</div>
-                                <div class="label">Bimbingan Kelompok</div>
-                            </div>
-                            <div class="stat-card bimbingan-kelas">
-                                <div class="number">${stats.bimbinganKelas}</div>
-                                <div class="label">Bimbingan Kelas</div>
-                            </div>
+                            ${sortedClasses.map(cls => {
+                const cData = classStats[cls];
+                if (cData.total === 0) return '';
+                return `
+                                    <div class="class-row">
+                                        <div class="class-info">
+                                            <span>Kelas ${cls}</span>
+                                            <span>Total: ${cData.total}</span>
+                                        </div>
+                                        <div class="stacked-bar-container">
+                                            ${cData['Konseling Individu'] > 0 ? `<div class="bar-segment" style="width:${(cData['Konseling Individu'] / cData.total) * 100}%; background:#10b981">${cData['Konseling Individu']}</div>` : ''}
+                                            ${cData['Konseling Kelompok'] > 0 ? `<div class="bar-segment" style="width:${(cData['Konseling Kelompok'] / cData.total) * 100}%; background:#8b5cf6">${cData['Konseling Kelompok']}</div>` : ''}
+                                            ${cData['Bimbingan Kelompok'] > 0 ? `<div class="bar-segment" style="width:${(cData['Bimbingan Kelompok'] / cData.total) * 100}%; background:#f59e0b">${cData['Bimbingan Kelompok']}</div>` : ''}
+                                            ${cData['Bimbingan Kelas'] > 0 ? `<div class="bar-segment" style="width:${(cData['Bimbingan Kelas'] / cData.total) * 100}%; background:#ec4899">${cData['Bimbingan Kelas']}</div>` : ''}
+                                        </div>
+                                    </div>
+                                `;
+            }).join('')}
                         </div>
-                        
-                        <!-- Filter Info -->
-                        ${generateFilterInfo(tanggalMulai, tanggalSelesai, kelas, namaSiswa)}
-                        
-                        <!-- Main Statistics -->
-                        <div class="table-wrapper">
-                            <div class="table-title">📊 Ringkasan Statistik</div>
+
+                        <!-- SUMMARY TABLE (RETAINED) -->
+                        <div style="page-break-inside: avoid;">
+                            <h3 style="font-size: 14px; margin-bottom: 10px;">Ringkasan Statistik Keseluruhan</h3>
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Kategori</th>
+                                        <th>Kategori Layanan / Bidang</th>
                                         <th>Jumlah</th>
                                         <th>Persentase</th>
                                     </tr>
@@ -2252,78 +2266,78 @@
                                 </tbody>
                             </table>
                         </div>
-                        
-                        <!-- Data Table -->
-                        <div class="table-wrapper">
-                            <div class="table-title">📋 Detail Layanan</div>
-                            ${filtered.length > 0 ? `
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Tanggal</th>
-                                            <th>Jenis Layanan</th>
-                                            <th>Bidang</th>
-                                            <th>Kelas</th>
-                                            <th>Nama Siswa</th>
-                                            <th>Uraian Kegiatan</th>
-                                            <th>Hasil & Tindak Lanjut</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${filtered.map((item, index) => `
-                                            <tr>
-                                                <td>${index + 1}</td>
-                                                <td>${item.tanggal}</td>
-                                                <td>${item.jenisLayanan}</td>
-                                                <td>${item.bidangLayanan}</td>
-                                                <td>${item.kelas}</td>
-                                                <td>${item.namaSiswa}</td>
-                                                <td>${item.uraianKegiatan}</td>
-                                                <td>${item.hasilTindakLanjut}</td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            ` : `
-                                <div class="no-data">Tidak ada data untuk dicetak</div>
-                            `}
+
+                        <!-- DATA TABLE -->
+                        <div style="page-break-inside: auto;">
+                            <h3 style="font-size: 14px; margin-bottom: 10px; page-break-after: avoid; break-after: avoid;">Detail Data Layanan</h3>
+                            <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 25px">No</th>
+                                    <th style="width: 70px">Tanggal</th>
+                                    <th style="width: 130px">Jenis & Bidang</th>
+                                    <th style="width: 130px">Kelas & Siswa</th>
+                                    <th>Uraian Kegiatan & Tindak Lanjut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filtered.map((item, idx) => {
+                let displayNamaSiswa = item.namaSiswa;
+                const namaList = item.namaSiswa.split(',').map(n => n.trim()).filter(n => n);
+                if (namaList.length > 3) {
+                    displayNamaSiswa = namaList.slice(0, 3).join(', ') + '...*';
+                }
+
+                return `
+                                    <tr>
+                                        <td class="center">${idx + 1}</td>
+                                        <td class="center">${item.tanggal}</td>
+                                        <td>
+                                            <strong>Jenis:</strong> ${item.jenisLayanan}<br>
+                                            <strong>Bidang:</strong> ${item.bidangLayanan}
+                                        </td>
+                                        <td>
+                                            <strong>Kelas:</strong> ${item.kelas}<br>
+                                            <strong>Siswa:</strong> ${displayNamaSiswa}
+                                        </td>
+                                        <td>
+                                            <strong>Kegiatan:</strong> ${item.uraianKegiatan}<br>
+                                            <strong>Tindak Lanjut:</strong> ${item.hasilTindakLanjut}
+                                        </td>
+                                    </tr>
+                                `;
+            }).join('')}
+                            </tbody>
+                        </table>
                         </div>
-                        
-                        <!-- Signature Section -->
-                        <div class="signature-section">
-                            <div class="signature-box">
-                                <p style="font-size: 12px; color: #333; margin-bottom: 100px;">${selectedPrincipal.includes('Heri Bagus Ardiansyah') ? 'Kepala Sekolah,' : 'Kepala Madrasah,'}</p>
-                                <strong style="font-size: 11px; color: #333;">_____________________</strong>
-                                <p style="font-size: 11px; color: #333; margin-top: 12px; font-weight: 600;">${selectedPrincipal}</p>
-                            </div>
-                            <div class="signature-box">
-                                <p style="font-size: 12px; color: #333; margin-bottom: 100px;">Guru Bimbingan & Konseling</p>
-                                <strong style="font-size: 11px; color: #333;">_____________________</strong>
-                                <p style="font-size: 11px; color: #333; margin-top: 12px; font-weight: 600;">${currentUser ? currentUser.nama : 'Nama Guru BK'}</p>
-                            </div>
+
+                        <div class="footnote">
+                            * selengkapnya bisa dilihat di aplikasi Layanan BK
                         </div>
-                        
-                        <!-- Footer -->
-                        <div class="footer">
-                            <p>© Pondok Pesantren Al-Umm - Sistem Layanan Bimbingan & Konseling</p>
-                            <p>Laporan ini digenerate otomatis dan berlaku sebagai dokumen resmi</p>
+
+                        <!-- SIGNATURES -->
+                        <div class="signature-wrapper">
+                            <div class="sig-box">
+                                <p>${roleHeader}</p>
+                                <br><br><br>
+                                <p><strong>${selectedPrincipal}</strong></p>
+                            </div>
+                            <div class="sig-box">
+                                <p>Guru Bimbingan & Konseling,</p>
+                                <br><br><br>
+                                <p><strong>${currentUser ? currentUser.nama : '(..........................)'}</strong></p>
+                            </div>
                         </div>
                     </div>
                 </body>
                 </html>
             `;
 
-            // Open print window
-            const printWindow = window.open('', 'PRINT_WINDOW', 'width=900,height=600');
+            const printWindow = window.open('', 'PRINT_WINDOW', 'width=1000,height=800');
             printWindow.document.write(printContent);
             printWindow.document.close();
-
-            // Wait for content to load then print
             printWindow.onload = function () {
-                setTimeout(() => {
-                    printWindow.print();
-                }, 250);
+                setTimeout(() => { printWindow.print(); }, 500);
             };
         }
 
@@ -2419,21 +2433,27 @@
 
             kelasList.sort();
 
-            const filterKelas = document.getElementById('filterKelas');
-            filterKelas.innerHTML = '<option value="">Semua Kelas</option>' +
-                kelasList.map(k => `<option value="${k}">${k}</option>`).join('');
+            const container = document.getElementById('filterKelasContainer');
+            if (!container) return;
+
+            container.innerHTML = kelasList.map(k => `
+                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px; cursor: pointer;">
+                    <input type="checkbox" name="filterKelas" value="${k}" onchange="updateFilterSiswa()" style="width: 16px; height: 16px; cursor: pointer;">
+                    <span style="font-size: 14px; color: #374151;">Kelas ${k}</span>
+                </label>
+            `).join('');
         }
 
         function updateFilterSiswa() {
-            const kelas = document.getElementById('filterKelas').value;
+            const selectedClasses = Array.from(document.querySelectorAll('input[name="filterKelas"]:checked')).map(cb => cb.value);
             const filterSiswa = document.getElementById('filterNamaSiswa');
 
-            if (!kelas) {
+            if (selectedClasses.length === 0) {
                 filterSiswa.innerHTML = '<option value="">Semua Siswa</option>';
                 return;
             }
 
-            let siswaDiKelas = siswaData.filter(s => s.kelas === kelas);
+            let siswaDiKelas = siswaData.filter(s => selectedClasses.includes(s.kelas));
 
             siswaDiKelas.sort((a, b) => a.nama.localeCompare(b.nama));
 
@@ -2442,9 +2462,7 @@
         }
 
         function applyFilter() {
-            const tanggalMulai = document.getElementById('filterTanggalMulai').value;
-            const tanggalSelesai = document.getElementById('filterTanggalSelesai').value;
-            const kelas = document.getElementById('filterKelas').value;
+            const selectedClasses = Array.from(document.querySelectorAll('input[name="filterKelas"]:checked')).map(cb => cb.value);
             const namaSiswa = document.getElementById('filterNamaSiswa').value;
 
             let filtered = laporanData;
@@ -2473,10 +2491,10 @@
                 });
             }
 
-            if (kelas) {
+            if (selectedClasses.length > 0) {
                 filtered = filtered.filter(l => {
                     const kelasList = l.kelas.split(',').map(k => k.trim());
-                    return kelasList.includes(kelas);
+                    return kelasList.some(k => selectedClasses.includes(k));
                 });
             }
 
@@ -2496,8 +2514,9 @@
         function resetFilter() {
             document.getElementById('filterTanggalMulai').value = '';
             document.getElementById('filterTanggalSelesai').value = '';
-            document.getElementById('filterKelas').value = '';
+            document.querySelectorAll('input[name="filterKelas"]').forEach(cb => cb.checked = false);
             document.getElementById('filterNamaSiswa').value = '';
+            updateFilterSiswa();
             renderLaporanTable(laporanData);
             showToast('🔄 Filter direset', 'info');
         }
