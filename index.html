@@ -2204,6 +2204,20 @@
                         .sig-box {
                             text-align: center;
                             width: 250px;
+                            font-size: 10px;
+                        }
+                        .gradient-line {
+                            height: 1px;
+                            background: linear-gradient(to right, transparent, rgba(16, 185, 129, 0.5), rgba(139, 92, 246, 0.5), transparent);
+                            margin: 20px auto 10px auto;
+                            width: 80%;
+                        }
+                        .footer-note {
+                            text-align: center;
+                            font-size: 8pt;
+                            color: #64748b;
+                            line-height: 1.4;
+                            font-style: italic;
                         }
                     </style>
                 </head>
@@ -2327,6 +2341,13 @@
                                 <br><br><br>
                                 <p><strong>${currentUser ? currentUser.nama : '(..........................)'}</strong></p>
                             </div>
+                        </div>
+
+                        <!-- FOOTER -->
+                        <div class="gradient-line"></div>
+                        <div class="footer-note">
+                            <div>© Pondok Pesantren Al-Umm Malang - Sistem Layanan Bimbingan & Konseling</div>
+                            <div>Laporan ini digenerate otomatis dan berlaku sebagai dokumen resmi.</div>
                         </div>
                     </div>
                 </body>
