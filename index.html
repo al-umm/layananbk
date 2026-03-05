@@ -595,6 +595,16 @@
                                         (Kepala Madrasah)</option>
                                 </select>
                             </div>
+                            <div><label
+                                    style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">Opsi
+                                    Layanan</label>
+                                <select id="raporFilterOpsiLayanan"
+                                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); }"
+                                    style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px;">
+                                    <option value="tanpa">Tanpa Layanan</option>
+                                    <option value="dengan">Dengan Layanan</option>
+                                </select>
+                            </div>
                         </div>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <button onclick="applyRaporFilter()"
@@ -2843,6 +2853,7 @@
             document.getElementById('raporFilterTA').value = '';
             document.getElementById('raporFilterTanggal').value = '';
             document.getElementById('raporFilterKepsek').value = '';
+            document.getElementById('raporFilterOpsiLayanan').value = 'tanpa';
             renderRaporCards(raporData);
             showToast('🔄 Filter direset', 'info');
         }
@@ -2922,10 +2933,46 @@
             const email = isMadrasah ? 'maalummmalang@gmail.com' : 'smpi.alumm@gmail.com';
             const sekolahLabel = isMadrasah ? 'MA Al-Umm Malang' : 'SMP Islam Al-Umm';
             const printDate = getRaporPrintDate();
+            const opsiLayanan = document.getElementById('raporFilterOpsiLayanan').value;
             let allPages = '';
             records.forEach((r, idx) => {
                 const siswa = siswaData.find(s => s.nama.trim().toLowerCase() === r.nama.trim().toLowerCase());
                 const nis = (siswa && siswa.nis) ? siswa.nis : '-';
+
+                let htmlLayanan = '';
+                if (opsiLayanan === 'dengan') {
+                    const riwayatSiswa = riwayatData.filter(riw => {
+                        const namaList = riw.namaSiswa.split(',').map(n => n.trim().replace(/\s*\([^)]*\)/g, '').trim().toLowerCase());
+                        return namaList.includes(r.nama.trim().toLowerCase());
+                    });
+
+                    if (riwayatSiswa.length > 0) {
+                        const countLayanan = {};
+                        riwayatSiswa.forEach(riw => {
+                            const jenis = riw.jenisLayanan.trim();
+                            countLayanan[jenis] = (countLayanan[jenis] || 0) + 1;
+                        });
+
+                        const colorMap = {
+                            'Konseling Individu': { bg: '#dcfce7', color: '#166534', border: '#86efac' },
+                            'Konseling Kelompok': { bg: '#ede9fe', color: '#5b21b6', border: '#c4b5fd' },
+                            'Bimbingan Kelompok': { bg: '#fef9c3', color: '#92400e', border: '#fde68a' },
+                            'Bimbingan Kelas': { bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5' }
+                        };
+
+                        const badgesHtml = Object.keys(countLayanan).map(jenis => {
+                            const style = colorMap[jenis] || { bg: '#f8fafc', color: '#334155', border: '#e2e8f0' };
+                            return `<div style="display:inline-block; margin-right:8px; margin-bottom:4px; padding:5px 12px; border-radius:6px; border:1px solid ${style.border}; background:${style.bg}; font-size:10.5pt; color:${style.color}; -webkit-print-color-adjust:exact; print-color-adjust:exact;"><b>${jenis}</b> &nbsp;|&nbsp; <b>${countLayanan[jenis]}x</b></div>`;
+                        }).join('');
+
+                        htmlLayanan = `
+                        <div class="layanan-box">
+                            <div class="layanan-header">Riwayat Penerimaan Layanan Bimbingan & Konseling</div>
+                            <div class="layanan-body">${badgesHtml}</div>
+                        </div>`;
+                    }
+                }
+
                 const pageBreak = idx > 0 ? 'page-break-before:always;' : '';
                 allPages += `
                 <div class="rapor-page" style="${pageBreak}">
@@ -2985,6 +3032,7 @@
                                         <div class="catatan-header">Catatan Bimbingan dan Konseling</div>
                                         <div class="catatan-body">${r.catatan || '<em style="color:#999;">Tidak ada catatan khusus.</em>'}</div>
                                     </div>
+                                    ${htmlLayanan}
                                     <table class="ttd-table" style="page-break-inside: avoid;"><tr>
                                         <td style="text-align:center;">Mengetahui,<br>${kepsekJabatan}<div style="height:2cm;"></div><b><u>${kepsekNama}</u></b></td>
                                         <td style="text-align:center;">Malang, ${printDate}<br>Guru Bimbingan Konseling<div style="height:2cm;"></div><b><u>${currentUser ? currentUser.nama : '_______________'}</u></b></td>
@@ -2996,7 +3044,7 @@
                 </div>`;
             });
             return `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>Rapor BK</title><style>
-                @page{size:A4 portrait;margin:1.5cm 2cm 1.3cm 2cm;}
+                @page{size:A4 portrait;margin:1cm;}
                 @media print{
                     body{margin:0;padding:0;}
                     thead{display:table-header-group;}
@@ -3006,6 +3054,7 @@
                     .tbl-layanan tr.row-even td{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
                     .row-accent{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
                     .catatan-box{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+                    .layanan-box, .layanan-header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
                     .title-rapor{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
                 }
                 *{margin:0;padding:0;box-sizing:border-box;}
@@ -3085,6 +3134,26 @@
                     font-size:10.5pt;
                     min-height:36px;
                     line-height:1.6;
+                    background:#fff;
+                }
+                /* ===== LAYANAN ===== */
+                .layanan-box{
+                    margin-top:12px;
+                    border:1.5px solid #c0c0c0;
+                    border-radius:4px;
+                    overflow:hidden;
+                }
+                .layanan-header{
+                    background:linear-gradient(135deg,#dce8f5 0%,#eef3f8 100%);
+                    color:#1a2a45;
+                    padding:6px 12px;
+                    font-size:10pt;
+                    font-weight:bold;
+                    letter-spacing:0.3px;
+                    border-bottom:1px solid #b8cfe0;
+                }
+                .layanan-body{
+                    padding:10px 12px;
                     background:#fff;
                 }
                 /* ===== TTD ===== */
