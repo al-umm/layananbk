@@ -426,10 +426,6 @@
             <div class="login-wrapper">
                 <!-- Public Info Panel -->
                 <div class="public-panel" id="publicPanel">
-                    <div class="public-greeting" id="publicSalam">Assalamu'alaikum Warahmatullahi Wabarakatuh</div>
-                    <div class="public-salam" id="publicGreeting">Selamat Siang 👋</div>
-                    <div class="public-date" id="publicDate">Rabu, 11 Maret 2026</div>
-
                     <div class="public-section-title">📊 STATISTIK BULAN INI</div>
                     <div class="public-stats-grid">
                         <div class="public-stat-card">
@@ -1115,23 +1111,6 @@
         // ===== PUBLIC INFO PANEL =====
         let publicData = [];
 
-        function getGreeting() {
-            const hour = new Date().getHours();
-            if (hour >= 3 && hour < 11) return 'Selamat Pagi ☀️';
-            if (hour >= 11 && hour < 15) return 'Selamat Siang 👋';
-            if (hour >= 15 && hour < 18) return 'Selamat Sore 🌅';
-            return 'Selamat Malam 🌙';
-        }
-
-        function updatePublicGreeting() {
-            const now = new Date();
-            const days = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
-            document.getElementById('publicGreeting').textContent = getGreeting();
-            document.getElementById('publicDate').textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
-        }
-
         function parsePublicCSV(csvText) {
             const lines = csvText.split('\n');
             const result = [];
@@ -1320,10 +1299,7 @@
         }
 
         // Initialize public panel on page load
-        updatePublicGreeting();
         loadPublicData();
-        // Update greeting every minute
-        setInterval(updatePublicGreeting, 60000);
 
         // Initialize SDK
         if (window.elementSdk) {
