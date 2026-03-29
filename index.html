@@ -3476,6 +3476,7 @@
                         <thead style="display: table-header-group;">
                             <tr>
                                 <td style="padding:0; border:none; vertical-align:top;">
+                                    ${kepsekJabatan === 'Kepala Sekolah' ? '' : `
                                     <table class="header-table"><tr>
                                         <td style="width:100px;vertical-align:middle;"><img src="${logoUrl}" style="height:85px;"></td>
                                         <td style="text-align:center;vertical-align:middle; line-height: 1.2;">
@@ -3486,7 +3487,25 @@
                                             <div style="font-size:10pt;">Telp. (0341) 576226 | ${email} | www.pesantrenalumm.sch.id</div>
                                         </td>
                                     </tr></table>
-                                    <hr style="border:none;border-top:2pt solid black;margin:6px 0 4px 0;">
+                                    <hr style="border:none;border-top:2pt solid black;margin:6px 0 4px 0;">`}
+                                    ${kepsekJabatan === 'Kepala Sekolah' ? `
+                                    <hr style="border:none;border-top:1pt solid black;margin:6px 0 4px 0;">
+                                    <table class="identitas"><tr>
+                                        <td style="width:60%;vertical-align:top;"><table>
+                                            <tr><td style="width: 100px;">Nama Murid</td><td>: <b>${r.nama}</b></td></tr>
+                                            <tr><td>NIS</td><td>: ${nis}</td></tr>
+                                            <tr><td>Sekolah</td><td>: SMP Islam Al-Umm</td></tr>
+                                            <tr><td>Alamat</td><td>: Jl. Joyo Agung No. 1 Merjosari, Malang</td></tr>
+                                        </table></td>
+                                        <td style="vertical-align:top;"><table>
+                                            <tr><td style="width: 100px;">Kelas</td><td>: ${r.kelas}</td></tr>
+                                            <tr><td>Fase</td><td>: D</td></tr>
+                                            <tr><td>Semester</td><td>: ${semester}</td></tr>
+                                            <tr><td>Tahun Ajaran</td><td>: ${tahunAjaran}</td></tr>
+                                        </table></td>
+                                    </tr></table>
+                                    <hr style="border:none;border-top:1pt solid black;margin:4px 0 8px 0;">
+                                    ` : `
                     <table class="identitas"><tr>
                         <td style="width:60%;"><table>
                             <tr><td><b>Nama Murid</b></td><td>: ${r.nama}</td></tr>
@@ -3499,7 +3518,7 @@
                             <tr><td><b>Tahun Ajaran</b></td><td>: ${tahunAjaran}</td></tr>
                         </table></td>
                     </tr></table>
-                    <hr style="border:none;border-top:2pt solid black;margin:4px 0 8px 0;">
+                    <hr style="border:none;border-top:2pt solid black;margin:4px 0 8px 0;">`}
                                     <div class="title-rapor">LAPORAN HASIL LAYANAN BIMBINGAN DAN KONSELING</div>
                                     <div style="height: 10px;"></div> <!-- Spasi tambahan di bawah title-rapor untuk body -->
                                 </td>
@@ -3508,6 +3527,7 @@
                         <tbody style="display: table-row-group;">
                             <tr>
                                 <td style="padding:0; border:none; vertical-align:top;">
+                                    <div class="tbl-layanan-wrapper">
                                     <table class="tbl-layanan">
                                         <thead>
                                             <tr>
@@ -3524,6 +3544,7 @@
                 }).join('')}
                                         </tbody>
                                     </table>
+                                    </div>
                                     <div class="catatan-box">
                                         <div class="catatan-header">Catatan Bimbingan dan Konseling</div>
                                         <div class="catatan-body">${r.catatan || '<em style="color:#999;">Tidak ada catatan khusus.</em>'}</div>
@@ -3558,7 +3579,7 @@
                 .header-table{width:100%;border-collapse:collapse;}
                 .header-table td{border:none;padding:0;}
                 .identitas{width:100%;border-collapse:collapse;margin:5px 0;}
-                .identitas td{border:none;padding:0px 5px;font-size:10.5pt;vertical-align:top;line-height:1;}
+                .identitas td{border:none;padding:0px 5px;font-size:10.5pt;vertical-align:top;line-height:1.25;}
                 /* ===== JUDUL RAPOR ===== */
                 .title-rapor{
                     text-align:center;font-size:12pt;font-weight:bold;
@@ -3570,7 +3591,18 @@
                     color:#444;margin-bottom:12px;
                 }
                 /* ===== MAIN TABLE ===== */
-                .tbl-layanan{width:100%;border-collapse:collapse;font-size:10.5pt;border-radius:8px;overflow:hidden;border:1.5px solid #c0c0c0;}
+                .tbl-layanan-wrapper{
+                    width:100%;
+                    border:1pt solid black;
+                    border-radius:8px;
+                    overflow:hidden;
+                }
+                .tbl-layanan{
+                    width:100%;
+                    border-collapse:collapse;
+                    border-style:hidden;
+                    font-size:10.5pt;
+                }
                 .tbl-layanan th{
                     background:linear-gradient(135deg,#dce8f5 0%,#eef3f8 100%);
                     color:#1a2a45;
@@ -3579,13 +3611,13 @@
                     padding:7px 10px;
                     font-size:10pt;
                     letter-spacing:0.3px;
-                    border:1px solid #b8cfe0;
+                    border:1pt solid black;
                 }
                 .tbl-layanan td{
-                    border:1px solid #d0d0d0;
                     padding:7px 10px;
                     vertical-align:middle;
                     line-height:1.5;
+                    border:1pt solid black;
                 }
                 .tbl-layanan tr.row-even td{background:#f9f8ff;}
                 .tbl-layanan tr.row-odd td{background:#ffffff;}
@@ -3612,8 +3644,8 @@
                 /* ===== CATATAN ===== */
                 .catatan-box{
                     margin-top:12px;
-                    border:1.5px solid #c0c0c0;
-                    border-radius:4px;
+                    border:1pt solid black;
+                    border-radius:8px;
                     overflow:hidden;
                 }
                 .catatan-header{
@@ -3623,7 +3655,7 @@
                     font-size:10pt;
                     font-weight:bold;
                     letter-spacing:0.3px;
-                    border-bottom:1px solid #b8cfe0;
+                    border-bottom:1pt solid black;
                 }
                 .catatan-body{
                     padding:10px 12px;
@@ -3635,8 +3667,8 @@
                 /* ===== LAYANAN ===== */
                 .layanan-box{
                     margin-top:12px;
-                    border:1.5px solid #c0c0c0;
-                    border-radius:4px;
+                    border:1pt solid black;
+                    border-radius:8px;
                     overflow:hidden;
                 }
                 .layanan-header{
@@ -3646,7 +3678,7 @@
                     font-size:10pt;
                     font-weight:bold;
                     letter-spacing:0.3px;
-                    border-bottom:1px solid #b8cfe0;
+                    border-bottom:1pt solid black;
                 }
                 .layanan-body{
                     padding:10px 12px;
