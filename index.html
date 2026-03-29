@@ -8,7 +8,7 @@
     <script src="/_sdk/element_sdk.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
+        *, *::before, *::after {
             box-sizing: border-box;
         }
 
@@ -146,6 +146,31 @@
 
             body {
                 background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Fix right border cut off on tables during print */
+            @page {
+                margin: 1cm;
+            }
+
+            table {
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                border-collapse: collapse !important;
+            }
+
+            th, td {
+                box-sizing: border-box !important;
+                background-clip: padding-box; /* Sometimes helps with borders */
+            }
+            
+            /* Add tiny right margin to wrappers if they are strictly full width */
+            .rapor-wrapper, #cetakRaporContainer {
+                padding-right: 1px !important; 
+                box-sizing: border-box !important;
             }
         }
 
@@ -2651,11 +2676,12 @@
 
                         /* Table Styles */
                         table {
-                            width: 100%;
+                            width: 99.5%;
+                            margin: 0 auto 5px auto;
+                            box-sizing: border-box;
                             border-collapse: separate;
                             border-spacing: 0;
                             font-size: 11px;
-                            margin-bottom: 5px;
                             border: 1px solid #cbd5e1;
                             border-radius: 10px;
                             overflow: hidden;
@@ -3472,7 +3498,7 @@
                 const pageBreak = idx > 0 ? 'page-break-before:always;' : '';
                 allPages += `
                 <div class="rapor-page" style="${pageBreak}">
-                    <table style="width:100%; border:none; border-collapse: collapse;">
+                    <table style="width:99.5%; margin:0 auto; border:none; border-collapse: collapse;">
                         <thead style="display: table-header-group;">
                             <tr>
                                 <td style="padding:0; border:none; vertical-align:top;">
@@ -3576,9 +3602,9 @@
                 }
                 *{margin:0;padding:0;box-sizing:border-box;}
                 body{font-family:'Times New Roman',serif;color:#111;font-size:11pt;line-height:1.4;}
-                .header-table{width:100%;border-collapse:collapse;}
+                .header-table{width:99.5%;margin:0 auto;border-collapse:collapse;}
                 .header-table td{border:none;padding:0;}
-                .identitas{width:100%;border-collapse:collapse;margin:5px 0;}
+                .identitas{width:99.5%;margin:5px auto;border-collapse:collapse;}
                 .identitas td{border:none;padding:0px 5px;font-size:10.5pt;vertical-align:top;line-height:1.25;}
                 /* ===== JUDUL RAPOR ===== */
                 .title-rapor{
@@ -3592,10 +3618,12 @@
                 }
                 /* ===== MAIN TABLE ===== */
                 .tbl-layanan-wrapper{
-                    width:100%;
+                    width:99.5%;
+                    margin:0 auto;
                     border:1pt solid black;
                     border-radius:8px;
                     overflow:hidden;
+                    box-sizing:border-box;
                 }
                 .tbl-layanan{
                     width:100%;
@@ -3643,10 +3671,12 @@
                 .kat-sbt{background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;}
                 /* ===== CATATAN ===== */
                 .catatan-box{
-                    margin-top:12px;
+                    width:99.5%;
+                    margin:12px auto 0 auto;
                     border:1pt solid black;
                     border-radius:8px;
                     overflow:hidden;
+                    box-sizing:border-box;
                 }
                 .catatan-header{
                     background:linear-gradient(135deg,#dce8f5 0%,#eef3f8 100%);
@@ -3666,10 +3696,12 @@
                 }
                 /* ===== LAYANAN ===== */
                 .layanan-box{
-                    margin-top:12px;
+                    width:99.5%;
+                    margin:12px auto 0 auto;
                     border:1pt solid black;
                     border-radius:8px;
                     overflow:hidden;
+                    box-sizing:border-box;
                 }
                 .layanan-header{
                     background:linear-gradient(135deg,#dce8f5 0%,#eef3f8 100%);
@@ -3685,7 +3717,7 @@
                     background:#fff;
                 }
                 /* ===== TTD ===== */
-                .ttd-table{width:100%;border-collapse:collapse;margin-top:28px;}
+                .ttd-table{width:99.5%;margin:28px auto 0 auto;border-collapse:collapse;}
                 .ttd-table td{border:none;width:50%;padding:0 10px;vertical-align:top;font-size:10.5pt;}
                 .ttd-box{
                     border:1px solid #aaa;
