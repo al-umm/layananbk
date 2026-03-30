@@ -2679,28 +2679,27 @@
                             width: 99.5%;
                             margin: 0 auto 5px auto;
                             box-sizing: border-box;
-                            border-collapse: separate;
-                            border-spacing: 0;
+                            border-collapse: collapse;
                             font-size: 11px;
-                            border: 1px solid #cbd5e1;
+                            border: 1pt solid #000;
                             border-radius: 10px;
                             overflow: hidden;
                         }
                         th {
                             background: #f1f5f9;
-                            border-bottom: 2px solid #cbd5e1;
-                            border-right: 1px solid #cbd5e1;
+                            border-bottom: 1pt solid #000;
+                            border-right: 1pt solid #000;
                             padding: 10px 8px;
                             text-align: center;
-                            color: #1e293b;
+                            color: #000;
                             font-weight: 700;
                         }
                         td {
-                            border-bottom: 1px solid #e2e8f0;
-                            border-right: 1px solid #e2e8f0;
+                            border-bottom: 1pt solid #000;
+                            border-right: 1pt solid #000;
                             padding: 8px;
                             vertical-align: top;
-                            color: #334155;
+                            color: #1a202c;
                         }
                         tr:last-child td {
                             border-bottom: none;
@@ -3517,14 +3516,14 @@
                                     ${kepsekJabatan === 'Kepala Sekolah' ? `
                                     <hr style="border:none;border-top:1pt solid black;margin:6px 0 4px 0;">
                                     <table class="identitas"><tr>
-                                        <td style="width:60%;vertical-align:top;"><table>
-                                            <tr><td style="width: 100px;">Nama Murid</td><td>: <b>${r.nama}</b></td></tr>
+                                        <td style="width:58%;vertical-align:top;padding-left:0;"><table>
+                                            <tr><td style="width: 115px;">Nama Murid</td><td>: <b>${r.nama}</b></td></tr>
                                             <tr><td>NIS</td><td>: ${nis}</td></tr>
                                             <tr><td>Sekolah</td><td>: SMP Islam Al-Umm</td></tr>
                                             <tr><td>Alamat</td><td>: Jl. Joyo Agung No. 1 Merjosari, Malang</td></tr>
                                         </table></td>
-                                        <td style="vertical-align:top;"><table>
-                                            <tr><td style="width: 100px;">Kelas</td><td>: ${r.kelas}</td></tr>
+                                        <td style="vertical-align:top;text-align:right;padding-right:0;"><table style="display:inline-table;text-align:left;">
+                                            <tr><td style="width: 115px;">Kelas</td><td>: ${r.kelas}</td></tr>
                                             <tr><td>Fase</td><td>: D</td></tr>
                                             <tr><td>Semester</td><td>: ${semester}</td></tr>
                                             <tr><td>Tahun Ajaran</td><td>: ${tahunAjaran}</td></tr>
@@ -3587,7 +3586,7 @@
                 </div>`;
             });
             return `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>Rapor BK</title><style>
-                @page{size:A4 portrait;margin:1cm;}
+                @page{size:A4 portrait;margin:${kepsekJabatan === 'Kepala Sekolah' ? '15mm' : '10mm'};}
                 @media print{
                     body{margin:0;padding:0;}
                     thead{display:table-header-group;}
@@ -3620,7 +3619,7 @@
                 .tbl-layanan-wrapper{
                     width:99.5%;
                     margin:0 auto;
-                    border:1pt solid black;
+                    border:1pt solid #000 !important;
                     border-radius:8px;
                     overflow:hidden;
                     box-sizing:border-box;
@@ -3639,13 +3638,13 @@
                     padding:7px 10px;
                     font-size:10pt;
                     letter-spacing:0.3px;
-                    border:1pt solid black;
+                    border:1pt solid #000;
                 }
                 .tbl-layanan td{
                     padding:7px 10px;
                     vertical-align:middle;
                     line-height:1.5;
-                    border:1pt solid black;
+                    border:1pt solid #000;
                 }
                 .tbl-layanan tr.row-even td{background:#f9f8ff;}
                 .tbl-layanan tr.row-odd td{background:#ffffff;}
@@ -3673,7 +3672,7 @@
                 .catatan-box{
                     width:99.5%;
                     margin:12px auto 0 auto;
-                    border:1pt solid black;
+                    border:1pt solid #000 !important;
                     border-radius:8px;
                     overflow:hidden;
                     box-sizing:border-box;
@@ -3685,7 +3684,7 @@
                     font-size:10pt;
                     font-weight:bold;
                     letter-spacing:0.3px;
-                    border-bottom:1pt solid black;
+                    border-bottom:1pt solid #000;
                 }
                 .catatan-body{
                     padding:10px 12px;
@@ -3698,7 +3697,7 @@
                 .layanan-box{
                     width:99.5%;
                     margin:12px auto 0 auto;
-                    border:1pt solid black;
+                    border:1pt solid #000 !important;
                     border-radius:8px;
                     overflow:hidden;
                     box-sizing:border-box;
@@ -3710,7 +3709,7 @@
                     font-size:10pt;
                     font-weight:bold;
                     letter-spacing:0.3px;
-                    border-bottom:1pt solid black;
+                    border-bottom:1pt solid #000;
                 }
                 .layanan-body{
                     padding:10px 12px;
